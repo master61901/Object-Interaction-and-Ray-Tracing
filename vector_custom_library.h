@@ -2,7 +2,9 @@
 #define VECTOR_CUSTOM_LIBRARY_H
 
 #include <cmath>
+#include <random>
 #include <iostream>
+
 class vector3
 {
 public:
@@ -40,7 +42,7 @@ double length_squared() const
 double length() const 
 {
         return std::sqrt(length_squared());
-} 
+}
 };  
 inline std::ostream& operator<<(std::ostream& out, const vector3& v) {
     return out << v.main_vector[0] << ' ' << v.main_vector[1] << ' ' << v.main_vector[2];
@@ -84,6 +86,39 @@ inline vector3 cross(const vector3& u, const vector3& v) {
 
 inline vector3 unit_vector(const vector3& v) {
     return v / v.length();
+}
+
+inline double random_double() {
+    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+
+inline double random_double(double min,double max) {
+    static std::uniform_real_distribution<double> distribution(min,max);
+    static std::mt19937 generator;
+    return distribution(generator);
+}
+inline vector3 random_gen(double min, double max) {
+        return vector3(random_double(min,max), random_double(min,max), random_double(min,max));
+}
+
+inline vector3 random_unit_vector() {
+    while (true) {
+        auto p = random_gen(-1,1);
+        auto lensq = p.length_squared();
+        if (1e-160 < lensq && lensq <= 1)
+            return p / sqrt(lensq);
+    }
+}
+
+
+inline vector3 random_on_hemisphere(const vector3& normal) {
+    vector3 on_unit_sphere = random_unit_vector();
+    if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+        return on_unit_sphere;
+    else
+        return -on_unit_sphere;
 }
 
 #endif
