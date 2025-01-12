@@ -2,7 +2,7 @@
 #define HITTABLE_LIST_CUSTOM_LIBRARY_H
 
 #include "hittable_custom_library.h"
-
+    
 
 class hittable_list : public hittable{
     public:
@@ -19,7 +19,7 @@ class hittable_list : public hittable{
         double closest_object=t_max;
         for(int i=0;i<list_size;i++)
         {
-            if(list[i]->hit(r,0.0,closest_object,record))
+            if(list[i]->hit(r,t_min,closest_object,record))
             {
                 hit=1;
                 closest_object=record.t;
