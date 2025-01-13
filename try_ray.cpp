@@ -8,16 +8,34 @@
 #include "material_custom_library.h"
 
 #include <iostream>
+#include <fstream>
 #include <future>
 #include  <thread>
 
 hittable *scene(){
-hittable **l=new hittable*[4];
-l[0]=new object_as_sphere(vector3(0,0,-1),0.5,new lambertian(vector3(0.8,0.3,0.3)));
-l[1]=new object_as_sphere(vector3(0,-100.5,-1),100,new lambertian(vector3(0.8,0.8,0.8)));
-l[2]=new object_as_sphere(vector3(1,0,-1),0.5,new metal(vector3(0.8,0.6,0.2),0));
-l[3]=new object_as_sphere(vector3(-1,0,-1),0.5,new dielectric(0.5));
-return new hittable_list(l,4);
+int num=250;
+hittable **list=new hittable*[num+1];
+list[0] = new object_as_sphere(vector3(0,-1000,0),1000,new lambertian(vector3(0.5,0.5,0.5)));
+	int i = 1;
+	for(int a=-8;a<8;a++) {
+		for(int b=-8;b<8;b++) {
+			double choose_mat = random_double();
+			vector3 center(a+0.9*random_double(),0.2,b+0.9*random_double());
+			if(choose_mat < 0.8) {
+				list[i++] = new object_as_sphere(center, 0.2, new lambertian(vector3(random_double()*random_double(),random_double()*random_double(),random_double()*random_double())));
+			} else if(choose_mat < 0.95) {
+				list[i++] = new object_as_sphere(center, 0.2, new metal(vector3(0.5*(1+random_double()),0.5*(1+random_double()),0.5*(1+random_double())),0.5*random_double()));
+			} else {
+				list[i++] = new object_as_sphere(center, 0.2, new dielectric(1.5));
+			}
+			
+		}
+	}
+	list[i++] = new object_as_sphere(vector3(0,1,0), 1, new dielectric(1.5));
+	list[i++] = new object_as_sphere(vector3(-4,1,0), 1, new lambertian(vector3(.4,.2,.1)));
+	list[i++] = new object_as_sphere(vector3(4,1,0), 1, new metal(vector3(.7,.6,.5),0));
+	return new hittable_list(list,i);
+//return new hittable_list(list,num);
 }
 
 hittable *world=scene();
@@ -26,7 +44,7 @@ int image_width=400;
 int image_height=200;
 double dist_to_focus = 10.0;
 double aperture = 0.1;
-vector3 lookfrom(0,0,6);
+vector3 lookfrom(13,3,2);
 vector3 lookat(0,0,0);
 camera cam(lookfrom,lookat,vector3(0,1,0),20, double(image_width)/double(image_height),aperture,dist_to_focus);
 //cam.render(world,image_width,image_height,sample_pixel);
@@ -64,4 +82,11 @@ int main() {
 		}
 	}
     std::clog << "\rDone.\n";
+    // std::ofstream outfile("image.ppm");
+    // if (!outfile) {
+    //     std::cerr << "Error: Could not open the file for writing.\n";
+    //    return 1;
+    // }
+    // outfile.close();
+    // std::cout << "Image written to image.ppm\n";
 }
